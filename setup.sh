@@ -32,6 +32,7 @@ sudo apt-get install -y pkg-config
 sudo apt-get install -y libjpeg-dev i2c-tools python-smbus python-pip python-dev python-pil python-daemon screen
 sudo apt-get install -y libsdl-dev
 sudo apt-get install -y git
+sudo apt-get install -y wiringpi
 # dump1090-fa deps
 sudo apt-get install -y build-essential debhelper librtlsdr-dev pkg-config dh-systemd libncurses5-dev libbladerf-dev
 # optional deps
@@ -41,49 +42,66 @@ git config --global http.sslVerify false
 
 # download and compile github packages
 function prepare_stratux {
-sudo mkdir /opt/stratux
+sudo mkdir -p /opt/stratux
 sudo chown pi.pi /opt/stratux
 
 cd /opt/stratux
-git clone --depth=1 --branch v1.6r1 https://github.com/cyoung/stratux.git stratux_src
-cd stratux_src
-git clone --depth=1 --branch stratux https://github.com/Determinant/dump1090-fa-stratux.git dump1090
+[ -d /opt/stratux/stratux_src ] || git clone --depth=1 --branch v1.6r1 https://github.com/cyoung/stratux.git /opt/stratux/stratux_src
+(cd /opt/stratux/stratux_src; git pull https://github.com/cyoung/stratux.git)
+#git clone --depth=1 --branch v1.6r1 https://github.com/cyoung/stratux.git stratux_src
+
+cd /opt/stratux/stratux_src
+[ -d dump1090 ] || git clone --depth=1 --branch stratux https://github.com/Determinant/dump1090-fa-stratux.git dump1090
+(cd dump1090; git pull https://github.com/Determinant/dump1090-fa-stratux.git)
+
+#git clone --depth=1 --branch stratux https://github.com/Determinant/dump1090-fa-stratux.git dump1090
+
+cd /opt/stratux/stratux_src
 git submodule update --init --recursive goflying
-patch < "$workdir/stratux_Makefile.patch" Makefile
-patch < "$workdir/stratux_network_go.patch" main/network.go
+patch -N < "$workdir/stratux_Makefile.patch" Makefile
+patch -N < "$workdir/stratux_network_go.patch" main/network.go
+patch -N < "$workdir/stratux_fancontrol_go.patch" main/fancontrol.go
 
 # build librtlsdr
 cd /opt/stratux
-git clone https://github.com/jpoirier/librtlsdr
-cd librtlsdr
-mkdir build
+#git clone https://github.com/jpoirier/librtlsdr
+[ -d librtlsdr ] || git clone https://github.com/jpoirier/librtlsdr librtlsdr
+(cd librtlsdr; git pull https://github.com/jpoirier/librtlsdr)
+cd /opt/stratux/librtlsdr
+mkdir -p build
 cd build
 cmake ../
-make
+make -j$((`nproc`+1))
 sudo make install
 sudo ldconfig
 
 # build kalibrate-rtl
 cd /opt/stratux
-git clone https://github.com/steve-m/kalibrate-rtl
-cd kalibrate-rtl
+#git clone https://github.com/steve-m/kalibrate-rtl
+[ -d kalibrate-rtl ] || git clone https://github.com/steve-m/kalibrate-rtl kalibrate-rtl
+(cd kalibrate-rtl; git pull https://github.com/steve-m/kalibrate-rtl)
+cd /opt/stratux/kalibrate-rtl
 ./bootstrap
 ./configure
-make
+make -j$((`nproc`+1))
 sudo make install
-
-# build wiringpi
-sudo apt-get purge wiringpi
-cd /opt/stratux
-git clone https://github.com/WiringPi/WiringPi.git wiringPi
-cd wiringPi
-git checkout 5bbb6e3
-patch < "$workdir/wiringPi_Makefile.patch" wiringPi/Makefile
-sudo ./build
-cd wiringPi
-make static
-sudo make install-static
 }
+
+#function build_wiringpi {
+# build wiringpi
+#sudo apt-get purge wiringpi
+#cd /opt/stratux
+##git clone https://github.com/WiringPi/WiringPi.git wiringPi
+#[ -d wiringPi ] || git clone https://github.com/WiringPi/WiringPi.git wiringPi
+#(cd wiringPi; git pull https://github.com/WiringPi/WiringPi.git)
+#cd /opt/stratux/wiringPi
+#git checkout 5bbb6e3
+#patch -N < "$workdir/wiringPi_Makefile.patch" /opt/stratux/wiringPi/Makefile
+#sudo ./build
+#cd wiringPi
+#make static
+#sudo make install-static
+#}
 
 function build_stratux {
 export GOPATH=/opt/stratux/go
@@ -92,7 +110,7 @@ export CGO_CFLAGS_ALLOW=-L/opt/stratux/stratux_src
 export PATH=$GOPATH/bin:$PATH
 
 cd /opt/stratux/stratux_src
-make
+make -j$((`nproc`+1))
 sudo rm -f /usr/bin/dump1090
 sudo -E make install
 }
@@ -147,6 +165,7 @@ sudo touch /var/lib/dhcp/dhcpd.leases
 sudo touch /etc/hostapd/hostapd.user
 }
 
+function finish_setup {
 update_base
 install_dep
 prepare_stratux
@@ -155,3 +174,4 @@ deploy_config
 
 sudo "$workdir/disable-fa-web.sh"
 sudo "$workdir/reboot-as-ap.sh"
+}
