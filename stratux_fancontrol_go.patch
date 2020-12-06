@@ -1,0 +1,11 @@
+--- fancontrol.go	2020-12-06 19:33:33.165283407 +0000
++++ fancontrol_go_mod	2020-12-06 19:32:53.105701676 +0000
+@@ -226,7 +226,7 @@
+ }
+ 
+ func main() {
+-	srv, err := daemon.New(name, description, []string{}...)
++	srv, err := daemon.New(name, description, daemon.SystemDaemon, []string{}...)
+ 	if err != nil {
+ 		errlog.Println("Error: ", err)
+ 		os.Exit(1)
