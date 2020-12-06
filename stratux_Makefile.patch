@@ -1,9 +1,11 @@
-diff --git a/Makefile b/Makefile
-index 79b10f5..ac65a5c 100644
---- a/Makefile
-+++ b/Makefile
-@@ -22,7 +22,6 @@ fancontrol:
- 	go build $(BUILDINFO_STATIC) -p 4 main/fancontrol.go main/equations.go main/cputemp.go
+--- Makefile_orig	2020-12-06 19:29:08.348054177 +0000
++++ Makefile_mod	2020-12-06 19:30:03.647474329 +0000
+@@ -19,10 +19,9 @@
+ 
+ fancontrol:
+ 	go get -t -d -v ./main
+-	go build $(BUILDINFO_STATIC) -p 4 main/fancontrol.go main/equations.go main/cputemp.go
++	go build $(BUILDINFO) -p 4 main/fancontrol.go main/equations.go main/cputemp.go
  
  xdump1090:
 -	git submodule update --init
