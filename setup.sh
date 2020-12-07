@@ -165,7 +165,6 @@ sudo touch /var/lib/dhcp/dhcpd.leases
 sudo touch /etc/hostapd/hostapd.user
 }
 
-function finish_setup {
 update_base
 install_dep
 prepare_stratux
@@ -173,5 +172,6 @@ build_stratux
 deploy_config
 
 sudo "$workdir/disable-fa-web.sh"
-sudo "$workdir/reboot-as-ap.sh"
-}
+#sudo "$workdir/reboot-as-ap.sh"
+echo "Done"
+echo "run reboot-as-ap.sh or reboot-as-sta.sh"

@@ -15,4 +15,5 @@ systemctl unmask hostapd
 systemctl enable hostapd
 systemctl enable dnsmasq
 cp "$workdir/wlan0" /etc/network/interfaces.d/
-reboot
+#reboot
+echo "You can reboot"
