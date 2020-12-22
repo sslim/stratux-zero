@@ -71,7 +71,7 @@ cd /opt/stratux/librtlsdr
 mkdir -p build
 cd build
 cmake ../
-make -j$((`nproc`+1))
+make
 sudo make install
 sudo ldconfig
 
@@ -83,7 +83,7 @@ cd /opt/stratux
 cd /opt/stratux/kalibrate-rtl
 ./bootstrap
 ./configure
-make -j$((`nproc`+1))
+make
 sudo make install
 }
 
@@ -110,7 +110,7 @@ export CGO_CFLAGS_ALLOW=-L/opt/stratux/stratux_src
 export PATH=$GOPATH/bin:$PATH
 
 cd /opt/stratux/stratux_src
-make -j$((`nproc`+1))
+make
 sudo rm -f /usr/bin/dump1090
 sudo -E make install
 }
