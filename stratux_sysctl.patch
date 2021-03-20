@@ -1,0 +1,10 @@
+--- /etc/sysctl.conf	2021-01-11 12:54:03.756752010 +0000
++++ sysctl.conf	2021-03-20 18:34:57.987671057 +0000
+@@ -66,3 +66,7 @@
+ # for what other values do
+ #kernel.sysrq=438
+ 
++net.ipv6.conf.all.disable_ipv6=1
++net.ipv6.conf.default.disable_ipv6=1
++net.ipv6.conf.lo.disable_ipv6=1
++net.ipv6.conf.eth0.disable_ipv6 = 1
