@@ -1,0 +1,11 @@
+--- /lib/systemd/system/gpsd.socket	2019-05-25 10:55:30.000000000 +0100
++++ ./gpsd.socket	2021-03-21 22:38:29.935967919 +0000
+@@ -3,7 +3,7 @@
+ 
+ [Socket]
+ ListenStream=/var/run/gpsd.sock
+-ListenStream=[::1]:2947
++#ListenStream=[::1]:2947
+ ListenStream=127.0.0.1:2947
+ SocketMode=0600
+ 
