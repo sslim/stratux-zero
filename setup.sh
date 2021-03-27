@@ -51,8 +51,14 @@ cd /opt/stratux
 #git clone --depth=1 --branch v1.6r1 https://github.com/cyoung/stratux.git stratux_src
 
 cd /opt/stratux/stratux_src
-[ -d dump1090 ] || git clone --depth=1 --branch stratux https://github.com/Determinant/dump1090-fa-stratux.git dump1090
-(cd dump1090; git pull https://github.com/Determinant/dump1090-fa-stratux.git)
+#[ -d "$workdir/dump1090" ] || git clone --depth=1 --branch stratux https://github.com/Determinant/dump1090-fa-stratux.git dump1090
+#(cd dump1090; git pull https://github.com/Determinant/dump1090-fa-stratux.git --allow-unrelated-histories)
+if [[ -d "$workdir/dump1090" ]]
+then
+   (cd dump1090; git pull https://github.com/Determinant/dump1090-fa-stratux.git --allow-unrelated-histories)
+else
+   git clone --depth=1 --branch stratux https://github.com/Determinant/dump1090-fa-stratux.git dump1090
+fi
 
 #git clone --depth=1 --branch stratux https://github.com/Determinant/dump1090-fa-stratux.git dump1090
 
@@ -166,6 +172,7 @@ sudo touch /etc/hostapd/hostapd.user
 
 sudo patch /etc/sysctl.con < "$workdir/stratux_sysctl.patch"
 sudo patch /etc/rc.local < "$workdir/stratux_rclocal.patch"
+sudo patch -N < "$workdir/stratux_gpsdsocket.patch" /lib/systemd/system/gpsd.socket
 }
 
 update_base
