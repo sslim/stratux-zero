@@ -7,7 +7,7 @@ function update_base {
 sudo apt-get install rpi-update
 sudo apt-get update
 sudo apt-get dist-upgrade
-sudo apt-get upgrade
+sudo apt-get -y upgrade
 }
 
 # install dependencies
@@ -45,22 +45,26 @@ function prepare_stratux {
 sudo mkdir -p /opt/stratux
 sudo chown pi.pi /opt/stratux
 
-cd /opt/stratux
-[ -d /opt/stratux/stratux_src ] || git clone --depth=1 --branch v1.6r1 https://github.com/cyoung/stratux.git /opt/stratux/stratux_src
-(cd /opt/stratux/stratux_src; git pull https://github.com/cyoung/stratux.git)
-#git clone --depth=1 --branch v1.6r1 https://github.com/cyoung/stratux.git stratux_src
-
-cd /opt/stratux/stratux_src
-#[ -d "$workdir/dump1090" ] || git clone --depth=1 --branch stratux https://github.com/Determinant/dump1090-fa-stratux.git dump1090
-#(cd dump1090; git pull https://github.com/Determinant/dump1090-fa-stratux.git --allow-unrelated-histories)
-if [[ -d "$workdir/dump1090" ]]
+if [ -d /opt/stratux/stratux_src ]
 then
-   (cd dump1090; git pull https://github.com/Determinant/dump1090-fa-stratux.git --allow-unrelated-histories)
+   #directory exists
+   cd /opt/stratux/stratux_src
+   git pull https://github.com/cyoung/stratux
 else
-   git clone --depth=1 --branch stratux https://github.com/Determinant/dump1090-fa-stratux.git dump1090
+   #directory does not exist
+   git clone --depth=1 --branch v1.6r1-eu023-us https://github.com/cyoung/stratux /opt/stratux/stratux_src
 fi
 
-#git clone --depth=1 --branch stratux https://github.com/Determinant/dump1090-fa-stratux.git dump1090
+
+#[ -d "$workdir/dump1090" ] || git clone --depth=1 --branch stratux https://github.com/Determinant/dump1090-fa-stratux.git dump1090
+#(cd dump1090; git pull https://github.com/Determinant/dump1090-fa-stratux.git --allow-unrelated-histories)
+if [ -d /opt/stratux/dump1090 ]
+then
+   cd /opt/stratux/dump1090
+   git pull https://github.com/flightaware/dump1090
+else
+   git clone --depth=1 --branch v5.0 https://github.com/flightaware/dump1090 /opt/stratux/dump1090
+fi
 
 cd /opt/stratux/stratux_src
 git submodule update --init --recursive goflying
@@ -69,10 +73,18 @@ patch -N < "$workdir/stratux_network_go.patch" main/network.go
 patch -N < "$workdir/stratux_fancontrol_go.patch" main/fancontrol.go
 
 # build librtlsdr
-cd /opt/stratux
 #git clone https://github.com/jpoirier/librtlsdr
-[ -d librtlsdr ] || git clone https://github.com/jpoirier/librtlsdr librtlsdr
-(cd librtlsdr; git pull https://github.com/jpoirier/librtlsdr)
+#[ -d librtlsdr ] || git clone https://github.com/jpoirier/librtlsdr librtlsdr
+#(cd librtlsdr; git pull https://github.com/jpoirier/librtlsdr)
+if [ -d /opt/stratux/librtlsdr ]
+then
+   #directory exists
+   cd /opt/stratux/librtlsdr
+   git pull https://github.com/jpoirier/librtlsdr
+else
+   #directory does not exist
+   git clone --depth=1 --branch v0.6.0 https://github.com/jpoirier/librtlsdr /opt/stratux/librtlsdr
+fi
 cd /opt/stratux/librtlsdr
 mkdir -p build
 cd build
@@ -82,10 +94,17 @@ sudo make install
 sudo ldconfig
 
 # build kalibrate-rtl
-cd /opt/stratux
+#cd /opt/stratux
 #git clone https://github.com/steve-m/kalibrate-rtl
-[ -d kalibrate-rtl ] || git clone https://github.com/steve-m/kalibrate-rtl kalibrate-rtl
-(cd kalibrate-rtl; git pull https://github.com/steve-m/kalibrate-rtl)
+#[ -d kalibrate-rtl ] || git clone https://github.com/steve-m/kalibrate-rtl kalibrate-rtl
+#(cd kalibrate-rtl; git pull https://github.com/steve-m/kalibrate-rtl)
+if [ -d /opt/stratux/kalibrate-rtl ]
+then
+   cd /opt/stratux/kalibrate-rtl
+   git pull https://github.com/steve-m/kalibrate-rtl
+else
+   git clone https://github.com/steve-m/kalibrate-rtl /opt/stratux/kalibrate-rtl
+fi
 cd /opt/stratux/kalibrate-rtl
 ./bootstrap
 ./configure
