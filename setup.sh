@@ -6,42 +6,27 @@ workdir="$(dirname $(realpath ${BASH_SOURCE[0]}))"
 function update_base {
 sudo apt-get install rpi-update
 sudo apt-get update
-sudo apt-get dist-upgrade
+sudo apt-get -y dist-upgrade
 sudo apt-get -y upgrade
 }
 
 # install dependencies
 function install_dep {
-sudo apt-get install -y vim
-sudo apt-get install -y iw
-sudo apt-get install -y lshw
-sudo apt-get install -y wget
-sudo apt-get install -y gpsd
-sudo apt-get install -y tcpdump
-sudo apt-get install -y libusb-1.0-0-dev
-sudo apt-get install -y build-essential
-sudo apt-get install -y cmake
-sudo apt-get install -y golang
-sudo apt-get install -y mercurial
-sudo apt-get install -y autoconf
-sudo apt-get install -y fftw3
-sudo apt-get install -y fftw3-dev
-sudo apt-get install -y libtool
-sudo apt-get install -y automake
-sudo apt-get install -y pkg-config
-sudo apt-get install -y libjpeg-dev i2c-tools python-smbus python-pip python-dev python-pil python-daemon screen
-sudo apt-get install -y libsdl-dev
-sudo apt-get install -y git
-sudo apt-get install -y wiringpi
+sudo apt-get install -y vim iw lshw wget gpsd tcpdump libusb-1.0-0-dev build-essential cmake mercurial autoconf fftw3 fftw3-dev libtool automake pkg-config libjpeg-dev i2c-tools python-smbus python-pip python-dev python-pil python-daemon screen libsdl-dev git wiringpi debhelper librtlsdr-dev dh-systemd libncurses5-dev libbladerf-dev hostapd dnsmasq nginx
+
+#install latest golang
+
+
 # dump1090-fa deps
-sudo apt-get install -y build-essential debhelper librtlsdr-dev pkg-config dh-systemd libncurses5-dev libbladerf-dev
+#sudo apt-get install -y build-essential debhelper librtlsdr-dev pkg-config dh-systemd libncurses5-dev libbladerf-dev
 # optional deps
-sudo apt-get install -y hostapd dnsmasq nginx
+#sudo apt-get install -y hostapd dnsmasq nginx
 git config --global http.sslVerify false
 }
 
 # download and compile github packages
 function prepare_stratux {
+set -o xtrace
 sudo mkdir -p /opt/stratux
 sudo chown pi.pi /opt/stratux
 
@@ -49,43 +34,21 @@ if [ -d /opt/stratux/stratux_src ]
 then
    #directory exists
    cd /opt/stratux/stratux_src
-   git pull https://github.com/cyoung/stratux
+   git pull https://github.com/sslim/stratux
 else
    #directory does not exist
-   git clone --depth=1 --branch v1.6r1-eu023-us https://github.com/cyoung/stratux /opt/stratux/stratux_src
-fi
-
-
-#[ -d "$workdir/dump1090" ] || git clone --depth=1 --branch stratux https://github.com/Determinant/dump1090-fa-stratux.git dump1090
-#(cd dump1090; git pull https://github.com/Determinant/dump1090-fa-stratux.git --allow-unrelated-histories)
-if [ -d /opt/stratux/dump1090 ]
-then
-   cd /opt/stratux/dump1090
-   git pull https://github.com/flightaware/dump1090
-else
-   git clone --depth=1 --branch v5.0 https://github.com/flightaware/dump1090 /opt/stratux/dump1090
+   cd /opt/stratux/stratux_src
+   git clone --depth=1 --branch v1.6r1-eu023-us https://github.com/sslim/stratux /opt/stratux/stratux_src
 fi
 
 cd /opt/stratux/stratux_src
+git submodule update --init --recursive --force dump1090
 git submodule update --init --recursive goflying
-patch -N < "$workdir/stratux_Makefile.patch" Makefile
-patch -N < "$workdir/stratux_network_go.patch" main/network.go
-patch -N < "$workdir/stratux_fancontrol_go.patch" main/fancontrol.go
+git submodule update --init --recursive --force librtlsdr
+git submodule update --init --recursive --force kalibrate-rtl
 
 # build librtlsdr
-#git clone https://github.com/jpoirier/librtlsdr
-#[ -d librtlsdr ] || git clone https://github.com/jpoirier/librtlsdr librtlsdr
-#(cd librtlsdr; git pull https://github.com/jpoirier/librtlsdr)
-if [ -d /opt/stratux/librtlsdr ]
-then
-   #directory exists
-   cd /opt/stratux/librtlsdr
-   git pull https://github.com/jpoirier/librtlsdr
-else
-   #directory does not exist
-   git clone --depth=1 --branch v0.6.0 https://github.com/jpoirier/librtlsdr /opt/stratux/librtlsdr
-fi
-cd /opt/stratux/librtlsdr
+cd /opt/stratux/stratux_src/librtlsdr
 mkdir -p build
 cd build
 cmake ../
@@ -94,45 +57,19 @@ sudo make install
 sudo ldconfig
 
 # build kalibrate-rtl
-#cd /opt/stratux
-#git clone https://github.com/steve-m/kalibrate-rtl
-#[ -d kalibrate-rtl ] || git clone https://github.com/steve-m/kalibrate-rtl kalibrate-rtl
-#(cd kalibrate-rtl; git pull https://github.com/steve-m/kalibrate-rtl)
-if [ -d /opt/stratux/kalibrate-rtl ]
-then
-   cd /opt/stratux/kalibrate-rtl
-   git pull https://github.com/steve-m/kalibrate-rtl
-else
-   git clone https://github.com/steve-m/kalibrate-rtl /opt/stratux/kalibrate-rtl
-fi
-cd /opt/stratux/kalibrate-rtl
+cd /opt/stratux/stratux_src/kalibrate-rtl
 ./bootstrap
 ./configure
 make
 sudo make install
 }
 
-#function build_wiringpi {
-# build wiringpi
-#sudo apt-get purge wiringpi
-#cd /opt/stratux
-##git clone https://github.com/WiringPi/WiringPi.git wiringPi
-#[ -d wiringPi ] || git clone https://github.com/WiringPi/WiringPi.git wiringPi
-#(cd wiringPi; git pull https://github.com/WiringPi/WiringPi.git)
-#cd /opt/stratux/wiringPi
-#git checkout 5bbb6e3
-#patch -N < "$workdir/wiringPi_Makefile.patch" /opt/stratux/wiringPi/Makefile
-#sudo ./build
-#cd wiringPi
-#make static
-#sudo make install-static
-#}
-
 function build_stratux {
 export GOPATH=/opt/stratux/go
 export GOROOT=$(go env | grep GOROOT | sed 's/[^=]*="\(.*\)"$/\1/g')
 export CGO_CFLAGS_ALLOW=-L/opt/stratux/stratux_src
 export PATH=$GOPATH/bin:$PATH
+export GO111MODULE=auto
 
 cd /opt/stratux/stratux_src
 make
@@ -189,6 +126,7 @@ mkdir -p /opt/stratux/stratux_src/dump1090/public_html/data/
 sudo touch /var/lib/dhcp/dhcpd.leases
 sudo touch /etc/hostapd/hostapd.user
 
+#disable IPv6, gpsd fix
 sudo patch /etc/sysctl.con < "$workdir/stratux_sysctl.patch"
 sudo patch /etc/rc.local < "$workdir/stratux_rclocal.patch"
 sudo patch -N < "$workdir/stratux_gpsdsocket.patch" /lib/systemd/system/gpsd.socket
