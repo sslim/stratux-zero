@@ -125,11 +125,6 @@ sudo rm -f /etc/network/if-post-down.d/wpasupplicant
 mkdir -p /opt/stratux/stratux_src/dump1090/public_html/data/
 sudo touch /var/lib/dhcp/dhcpd.leases
 sudo touch /etc/hostapd/hostapd.user
-
-#disable IPv6, gpsd fix
-sudo patch /etc/sysctl.conf < "$workdir/stratux_sysctl.patch"
-sudo patch /etc/rc.local < "$workdir/stratux_rclocal.patch"
-sudo patch -N < "$workdir/stratux_gpsdsocket.patch" /lib/systemd/system/gpsd.socket
 }
 
 update_base
@@ -140,5 +135,6 @@ deploy_config
 
 sudo "$workdir/disable-fa-web.sh"
 #sudo "$workdir/reboot-as-ap.sh"
+echo "run disable-ipv6.sh if needed"
 echo "Done"
 echo "run reboot-as-ap.sh or reboot-as-sta.sh"

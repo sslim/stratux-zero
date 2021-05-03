@@ -1,9 +1,0 @@
---- /etc/rc.local	2021-01-11 12:55:01.601842058 +0000
-+++ rc.local	2021-03-20 18:35:35.957150564 +0000
-@@ -17,4 +17,6 @@
-   printf "My IP address is %s\n" "$_IP"
- fi
- 
-+service procps reload
-+
- exit 0

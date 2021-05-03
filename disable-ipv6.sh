@@ -7,8 +7,8 @@ fi
 workdir="$(dirname $(realpath ${BASH_SOURCE[0]}))"
 
 #disable IPv6, gpsd fix
-sudo patch -Nu /etc/sysctl.conf -i "$workdir/stratux_sysctl.patch"
-sudo patch -Nu /lib/systemd/system/gpsd.socket -i "$workdir/stratux_gpsdsocket.patch"
+sudo patch -Nu -r - /etc/sysctl.conf -i "$workdir/stratux_sysctl.patch"
+sudo patch -Nu -r - /lib/systemd/system/gpsd.socket -i "$workdir/stratux_gpsdsocket.patch"
 
 #reboot
 echo "You can reboot"
