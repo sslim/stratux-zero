@@ -127,7 +127,7 @@ sudo touch /var/lib/dhcp/dhcpd.leases
 sudo touch /etc/hostapd/hostapd.user
 
 #disable IPv6, gpsd fix
-sudo patch /etc/sysctl.con < "$workdir/stratux_sysctl.patch"
+sudo patch /etc/sysctl.conf < "$workdir/stratux_sysctl.patch"
 sudo patch /etc/rc.local < "$workdir/stratux_rclocal.patch"
 sudo patch -N < "$workdir/stratux_gpsdsocket.patch" /lib/systemd/system/gpsd.socket
 }
