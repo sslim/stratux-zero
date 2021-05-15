@@ -13,6 +13,9 @@ sudo cp ./rc.local /etc/rc.local
 #set blinking LED
 sudo cp ./config.txt /boot/config.txt
 
+#change stratux SSID
+sudo cp ./hostapd.conf /etc/hostapd/hostapd.conf
+
 #change password
 passwd
 
