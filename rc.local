@@ -30,4 +30,7 @@ fi
 #disable HDMI
 /usr/bin/tvservice -o
 
+#run low memory restart stratux
+/home/pi/stratux-zero/lowmemrestart.sh &
+
 exit 0
