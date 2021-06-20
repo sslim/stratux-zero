@@ -16,6 +16,7 @@ sudo cp ./config.txt /boot/config.txt
 #change stratux SSID
 sudo cp ./hostapd.conf /etc/hostapd/hostapd.conf
 echo "Change SSID and password in GUI"
+read -n 1 -s -r -p "Press any key to continue"
 
 #change password
 passwd
